@@ -19,6 +19,12 @@ from enum import Enum
 from collections import defaultdict
 
 #from matplotlib import pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
+    print("Warning: matplotlib not available. Graphing functionality disabled.")
 
 from isa import Instr, Reg
 
@@ -574,48 +580,99 @@ def print_data(name, value, ts=24, sep='='):
 
 def display_scores(scores):
     """Display a 3D graph of scores against commit/issue-wide"""
-    bars = []
-    for x, l in enumerate(scores):
-        for y, z in enumerate(l):
-            bars.append((x, y, z))
+    print("\nIssue/Commit Performance Matrix:")
+    print("=" * 50)
+    
+    # Print header
+    print("Issue\\Commit", end="")
+    for j in range(len(scores[0])):
+        print(f"\t{j:8.1f}", end="")
+    print()
+    
+    # Print data rows
+    for i, row in enumerate(scores):
+        print(f"{i:9d}", end="")
+        for val in row:
+            print(f"\t{val:8.2f}", end="")
+        print()
+    
+    # Try to display graphical plot if matplotlib is available
+    if HAS_MATPLOTLIB:
+        bars = []
+        for x, l in enumerate(scores):
+            for y, z in enumerate(l):
+                if z > 0:  # Only plot non-zero values
+                    bars.append((x, y, z))
 
-    x, y, z, dx, dy, dz = [], [], [], [], [], []
-    for bx, by, bz in bars:
-        x.append(bx)
-        y.append(by)
-        z.append(0)
-        dx.append(.5)
-        dy.append(.5)
-        dz.append(bz)
+        if bars:
+            x, y, z, dx, dy, dz = [], [], [], [], [], []
+            for bx, by, bz in bars:
+                x.append(bx)
+                y.append(by)
+                z.append(0)
+                dx.append(.5)
+                dy.append(.5)
+                dz.append(bz)
 
-    #fig = plt.figure()
-    #ax1 = fig.add_subplot(111, projection='3d')
-    #ax1.bar3d(x, y, z, dx, dy, dz)
-    #ax1.set_xlabel("issue")
-    #ax1.set_ylabel("commit")
-    #ax1.set_zlabel("CoreMark/MHz")
-    #plt.show()
+            fig = plt.figure(figsize=(10, 8))
+            ax1 = fig.add_subplot(111, projection='3d')
+            ax1.bar3d(x, y, z, dx, dy, dz)
+            ax1.set_xlabel("Issue Width")
+            ax1.set_ylabel("Commit Width")
+            ax1.set_zlabel("CoreMark/MHz")
+            ax1.set_title("Performance vs Issue/Commit Width")
+            plt.show()
+    else:
+        print("\nNote: Install matplotlib for graphical visualization")
 
 def issue_commit_graph(input_file, n = 3):
     """Plot the issue/commit graph"""
 
-    r = range(n + 1)
-    scores = [[0 for _ in r] for _ in r]
+    print(f"Testing issue/commit combinations from 1 to {n}...")
+    
+    # Initialize scores matrix (n+1 x n+1 to include 0 index)
+    scores = [[0 for _ in range(n + 1)] for _ in range(n + 1)]
 
     if input_file is None:
-        scores = [[0, 0, 0, 0, 0, 0], [0, 2.651936045910317, 2.651936045910317, 2.651936045910317, 2.651936045910317, 2.651936045910317], [0, 3.212779150348426, 3.6292766488711137, 3.6292766488711137, 3.6292766488711137, 3.6292766488711137], [0, 3.2550388000624966, 3.900216852056974, 3.914997572701505, 3.914997572701505, 3.914997572701505], [0, 3.2596436557555526, 3.9257869239889134, 3.9420984578510834, 3.9421606193922765, 3.9421606193922765], [0, 3.260695897718491, 3.944757614368385, 3.9623576027736505, 3.9625460150656, 3.9625460150656]] # pylint: disable=line-too-long
+        # Use pre-computed scores for demonstration
+        print("Using pre-computed scores (no input file provided)")
+        scores = [[0, 0, 0, 0], 
+                 [0, 2.65, 2.65, 2.65], 
+                 [0, 3.21, 3.63, 3.63], 
+                 [0, 3.26, 3.90, 3.91]]
     else:
-        r = range(1, n + 1)
-        for issue in r:
-            for commit in r:
-                print("running", issue, commit)
-                model = Model(issue=issue, commit=commit)
-                model.load_file(input_file)
-                model.run()
-                n_cycles = count_cycles(filter_timed_part(model.retired))
-                score = 1000000 / n_cycles
-                scores[issue][commit] = score
+        # Compute scores for different issue/commit combinations
+        total_combinations = n * n
+        current = 0
+        
+        for issue in range(1, n + 1):
+            for commit in range(1, n + 1):
+                current += 1
+                print(f"[{current}/{total_combinations}] Testing issue={issue}, commit={commit}...", end=" ")
+                
+                try:
+                    model = Model(debug=False, issue=issue, commit=commit)
+                    model.load_file(input_file)
+                    model.run()
+                    
+                    # Use filtered timed part for more accurate measurement
+                    filtered_instructions = filter_timed_part(model.retired)
+                    if filtered_instructions:
+                        n_cycles = count_cycles(filtered_instructions)
+                    else:
+                        n_cycles = count_cycles(model.retired)
+                    
+                    score = 1000000 / n_cycles
+                    scores[issue][commit] = score
+                    print(f"Score: {score:.2f}")
+                    
+                except Exception as e:
+                    print(f"Error: {e}")
+                    scores[issue][commit] = 0
+        
+        print(f"\nFinal scores matrix:")
         print(scores)
+    
     display_scores(scores)
 
 def filter_timed_part(all_instructions):
@@ -655,7 +712,10 @@ def print_stats(instructions):
 def main(input_file: str):
     "Entry point"
 
-    model = Model(debug=True, issue=2, commit=2)
+    # Run single configuration first
+    print("Running single configuration (issue=2, commit=2):")
+    print("=" * 60)
+    model = Model(debug=False, issue=2, commit=2)  # Disable debug for cleaner output
     model.load_file(input_file)
     model.run()
 
@@ -663,6 +723,11 @@ def main(input_file: str):
 
     #print_stats(filter_timed_part(model.retired))
     print_stats(model.retired)
+
+    # Uncomment the next line to generate issue/commit performance graph
+    print("\n" + "=" * 60)
+    print("Generating Issue/Commit Performance Analysis...")
+    issue_commit_graph(input_file, 3)  # Test with smaller range first
 
 if __name__ == "__main__":
     main(sys.argv[1])
