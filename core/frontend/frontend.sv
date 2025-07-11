@@ -590,4 +590,120 @@ module frontend
       .fetch_entry_ready_i(fetch_entry_ready_i)    // to back-end
   );
 
+    // ================================================================
+  // ID STAGE COMPONENTS (Instruction Decode Process)
+  // ================================================================
+  
+  // The ID stage in CVA6 consists of three main components that handle
+  // variable-length (compressed) instructions as described in the documentation:
+  
+  // 1. INSTRUCTION RE-ALIGNER (instr_realign module - lines 156-168 above)
+  //    ┌─────────────────────────────────────────────────────────────────┐
+  //    │ • Handles compressed (16-bit) and regular (32-bit) instruction  │
+  //    │   alignment across cache line boundaries                        │
+  //    │ • Compressed instructions: bits [1:0] != 2'b11                  │ 
+  //    │ • Regular instructions: bits [1:0] == 2'b11                     │
+  //    │ • Manages unaligned instructions that span cache boundaries     │
+  //    │ • Uses branch prediction to discard instructions after          │
+  //    │   predicted taken branches (as shown in the image)              │
+  //    │ • Tracks serving_unaligned_o state for multi-cycle assembly     │
+  //    │ • Can handle up to CVA6Cfg.INSTR_PER_FETCH instructions/cycle   │
+  //    └─────────────────────────────────────────────────────────────────┘
+  
+  // 2. COMPRESSED DECODER (compressed_decoder.sv + instr_scan modules)
+  //    ┌─────────────────────────────────────────────────────────────────┐
+  //    │ • Expands 16-bit compressed instructions to 32-bit equivalents  │
+  //    │ • All compressed instructions have direct 32-bit RISC-V         │
+  //    │   equivalents (handled in compressed_decoder.sv)                │
+  //    │ • instr_scan modules (lines 551-566) identify compressed        │
+  //    │   control flow instructions for branch prediction               │
+  //    │ • Supports RVC, RVZCB, RVZCMP, RVZCMT extensions                │
+  //    └─────────────────────────────────────────────────────────────────┘
+  
+  // 3. DECODER (instr_queue -> decoder.sv in ID stage)
+  //    ┌─────────────────────────────────────────────────────────────────┐
+  //    │ • Transforms 32-bit instruction words into scoreboard entries   │
+  //    │ • Main instruction decoding happens in core/decoder.sv          │
+  //    │ • Creates a scoreboard_entry_t control structure containing:     │
+  //    │   - PC: Program Counter of instruction                          │
+  //    │   - TRANS_ID: Transaction ID for tracking through pipeline      │
+  //    │   - FU: Functional unit (ALU, LSU, CSR, MULT, FPU, etc.)       │
+  //    │   - OP: Specific operation (ADD, SUB, LOAD, STORE, etc.)        │
+  //    │   - RS1/RS2: Source register addresses                         │
+  //    │   - RD: Destination register address                            │
+  //    │   - RESULT: Immediate values or intermediate results            │
+  //    │   - VALID: Result validity flag                                 │
+  //    │   - USE_IMM/USE_ZIMM/USE_PC: Operand selection control         │
+  //    │   - EX: Exception information from fetch or decode             │
+  //    │   - BP: Branch prediction data                                  │
+  //    │   - IS_COMPRESSED: For proper PC increment (+2 vs +4)          │
+  //    │   - IS_MACRO_INSTR: For macro instruction sequences             │
+  //    │   - VFP: Vector floating-point flag                            │
+  //    │                                                                 │
+  //    │ Decode Process Summary:                                         │
+  //    │ 1. Extract opcode and instruction fields                       │
+  //    │ 2. Determine functional unit and operation                      │
+  //    │ 3. Calculate immediate values based on instruction type         │
+  //    │ 4. Check for illegal instructions and privilege violations     │
+  //    │ 5. Handle special cases (CSR, system instructions, etc.)       │
+  //    │ 6. Generate control signals for execution                      │
+  //    └─────────────────────────────────────────────────────────────────┘
+  
+  // INSTRUCTION FLOW PIPELINE:
+  // Cache → instr_realign → instr_scan → instr_queue → compressed_decoder → decoder → Issue
+  //
+  // DECODE STAGE DETAILED PROCESS:
+  // ================================================================
+  // The decode stage (core/decoder.sv) is the critical transformation point where
+  // raw instruction bits become executable control signals. Here's what happens:
+  //
+  // 1. INSTRUCTION ANALYSIS:
+  //    • Extracts opcode (bits [6:0]) to determine instruction class
+  //    • Identifies instruction format (R, I, S, B, U, J types)
+  //    • Extracts register fields (rs1, rs2, rd) and function codes
+  //
+  // 2. FUNCTIONAL UNIT ASSIGNMENT:
+  //    • ALU: Arithmetic/logic operations (ADD, SUB, AND, OR, shifts)
+  //    • LSU: Load/store unit (memory operations)
+  //    • MULT: Multiplication/division unit  
+  //    • FPU: Floating-point unit
+  //    • CSR: Control and status register operations
+  //    • CTRL_FLOW: Branch/jump instructions
+  //    • CVXIF: Custom extension interface
+  //
+  // 3. IMMEDIATE GENERATION:
+  //    • I-type: Sign-extended 12-bit immediate for loads, ALU ops
+  //    • S-type: Split immediate for stores
+  //    • B-type: Branch target calculation
+  //    • U-type: 20-bit upper immediate for LUI/AUIPC
+  //    • J-type: Jump target for JAL
+  //
+  // 4. PRIVILEGE & EXCEPTION CHECKING:
+  //    • Validates instruction legality in current privilege mode
+  //    • Checks for CSR access permissions
+  //    • Detects illegal instruction encoding
+  //    • Handles system calls (ECALL, EBREAK, SRET, MRET)
+  //
+  // 5. OPERAND SOURCE CONTROL:
+  //    • USE_IMM: Use immediate instead of rs2
+  //    • USE_ZIMM: Use zero-extended immediate
+  //    • USE_PC: Use PC as operand (for AUIPC, branches)
+  //
+  // 6. SCOREBOARD ENTRY CREATION:
+  //    All decoded information is packaged into a scoreboard_entry_t that contains
+  //    everything needed for out-of-order execution, dependency checking, and
+  //    eventual commit. This entry travels through the pipeline maintaining
+  //    instruction identity and control information.
+  //
+  // The process handles the complexity shown in your image:
+  // - 2 Compressed Instructions: Both decoded and aligned properly
+  // - Unaligned Instructions: Realigned across cache boundaries  
+  // - Regular Instructions: Full 32-bit decode with all control generation
+  // - Branch Prediction: Upper instructions discarded when branch predicted taken
+  //
+  // Result: Raw instruction bits → Executable control structure ready for issue
+  
+  // See core/instr_realign.sv, core/compressed_decoder.sv, and core/decoder.sv
+  // for detailed implementations of each component.
+
 endmodule
