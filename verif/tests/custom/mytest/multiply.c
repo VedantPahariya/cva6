@@ -5,7 +5,8 @@ int main() {
     int a = 21;
     int b = 71;
     int result = a * b;
-    // printf("The result of multiplying ");
-    // Optionally, you can return the result or just return 0
     return 0;
 }
+
+// printf("The result of multiplying ");
+// can't return the result because non-zero value
