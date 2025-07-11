@@ -172,8 +172,33 @@ package config_pkg;
     int unsigned                 IcacheByteSize;
     // Instruction cache associativity (number of ways)
     int unsigned                 IcacheSetAssoc;
-    // Instruction cache line width
+    // Instruction cache line width (in bits)
     int unsigned                 IcacheLineWidth;
+    //
+    // --- Instruction Cache Sizing ---
+    // Number of sets = IcacheByteSize / (IcacheSetAssoc * (IcacheLineWidth/8))
+    // ICACHE_OFFSET_WIDTH = $clog2(IcacheLineWidth / 8)
+    // ICACHE_INDEX_WIDTH = $clog2(Number of sets) + ICACHE_OFFSET_WIDTH
+    //
+    // Example: 32KB, 8-way, 512b line -> 32*1024/(8*64) = 64 sets
+    //
+    // These derived parameters should be set accordingly:
+    //   int unsigned ICACHE_SET_ASSOC;
+    //   int unsigned ICACHE_SET_ASSOC_WIDTH;
+    //   int unsigned ICACHE_INDEX_WIDTH;
+    //   int unsigned ICACHE_TAG_WIDTH;
+    //   int unsigned ICACHE_LINE_WIDTH;
+    //   int unsigned ICACHE_USER_LINE_WIDTH;
+    //
+    // Ensure these are consistent with the above formula to avoid cache misconfiguration.
+    //
+    // Optionally, add a static assertion in check_cfg to verify consistency.
+    //
+    // Example assertion (pseudo-code):
+    // assert(IcacheByteSize == IcacheSetAssoc * (1 << (ICACHE_INDEX_WIDTH - ICACHE_OFFSET_WIDTH)) * (IcacheLineWidth/8));
+    //
+    // End of instruction cache documentation.
+    
     // Cache Type
     cache_type_t                 DCacheType;
     // Data cache ID
