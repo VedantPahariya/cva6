@@ -1,0 +1,52 @@
+# CVA6-ARA Integration Source Files
+# This file lists all sources needed for ARA vector unit integration
+
+# CVA6 Integration Files
+${CVA6_REPO_DIR}/core/ara_cva6_top.sv
+${CVA6_REPO_DIR}/core/ara_decoder.sv
+
+# ARA Vector Unit Core Sources
+../ara/hardware/src/ara_system.sv
+../ara/hardware/src/ara_soc.sv
+../ara/hardware/src/ara.sv
+../ara/hardware/src/ara_dispatcher.sv
+../ara/hardware/src/ara_sequencer.sv
+../ara/hardware/src/ctrl_registers.sv
+../ara/hardware/src/axi_inval_filter.sv
+../ara/hardware/src/segment_sequencer.sv
+
+# ARA Lane Sources
+../ara/hardware/src/lane/vector_regfile.sv
+../ara/hardware/src/lane/operand_requester.sv
+../ara/hardware/src/lane/operand_queue.sv
+../ara/hardware/src/lane/operand_queues_stage.sv
+../ara/hardware/src/lane/lane_sequencer.sv
+../ara/hardware/src/lane/lane.sv
+../ara/hardware/src/lane/valu.sv
+../ara/hardware/src/lane/vmfpu.sv
+../ara/hardware/src/lane/simd_alu.sv
+../ara/hardware/src/lane/simd_mul.sv
+../ara/hardware/src/lane/simd_div.sv
+../ara/hardware/src/lane/vector_fus_stage.sv
+../ara/hardware/src/lane/fixed_p_rounding.sv
+
+# ARA VLSU (Vector Load/Store Unit)
+../ara/hardware/src/vlsu/vlsu.sv
+../ara/hardware/src/vlsu/vldu.sv
+../ara/hardware/src/vlsu/vstu.sv
+../ara/hardware/src/vlsu/addrgen.sv
+
+# ARA Mask Unit
+../ara/hardware/src/masku/masku.sv
+../ara/hardware/src/masku/masku_operands.sv
+
+# ARA SLDU (Slide Unit)
+../ara/hardware/src/sldu/sldu.sv
+../ara/hardware/src/sldu/sldu_op_dp.sv
+../ara/hardware/src/sldu/p2_stride_gen.sv
+
+# Include directories
++incdir+../ara/hardware/include
++incdir+../ara/hardware/src
++incdir+${CVA6_REPO_DIR}/core/include
++incdir+${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/include

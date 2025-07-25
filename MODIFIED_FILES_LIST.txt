@@ -1,0 +1,48 @@
+CVA6 + ARA Integration - Modified Files List
+================================================
+
+Created Files:
+--------------
+1. /home/vedant/Desktop/Summer_Project/cva6/core/ara_decoder.sv
+2. /home/vedant/Desktop/Summer_Project/cva6/core/ara_cva6_top.sv
+3. /home/vedant/Desktop/Summer_Project/cva6/core/cva6_ara_wrapper.sv
+4. /home/vedant/Desktop/Summer_Project/cva6/Flist.ara
+5. /home/vedant/Desktop/Summer_Project/cva6/Makefile.ara
+6. /home/vedant/Desktop/Summer_Project/cva6/corev_apu/tb/cva6_ara_tb_wrapper.sv
+7. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/ (entire directory)
+8. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_add_basic.c
+9. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_intrinsics.c
+10. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/Makefile
+11. /home/vedant/Desktop/Summer_Project/cva6/tests/common/crt0.S
+12. /home/vedant/Desktop/Summer_Project/cva6/tests/common/test.ld
+13. /home/vedant/Desktop/Summer_Project/cva6/docs/ARA_INTEGRATION.md
+14. /home/vedant/Desktop/Summer_Project/cva6/docs/ARA_INTEGRATION_PLAN.md
+15. /home/vedant/Desktop/Summer_Project/cva6/setup_ara.sh
+16. /home/vedant/Desktop/Summer_Project/cva6/complete_ara_integration.sh
+17. /home/vedant/Desktop/Summer_Project/cva6/check_integration_status.sh
+18. /home/vedant/Desktop/Summer_Project/cva6/test_integration_code.sh
+19. /home/vedant/Desktop/Summer_Project/cva6/demo_vector_instructions.sh
+20. /home/vedant/Desktop/Summer_Project/cva6/INTEGRATION_COMPLETE.md
+
+Modified Files:
+---------------
+1. /home/vedant/Desktop/Summer_Project/cva6/core/include/cv64a6_imafdcv_sv39_config_pkg.sv
+   - Enabled vector extension (CVA6ConfigVExtEn = 1)
+   - Enabled CVXIF interface (CVA6ConfigCvxifEn = 1)
+   - Set VLEN = 256
+
+Generated Files (can be deleted):
+--------------------------------
+1. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_add_basic.elf
+2. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_add_basic.bin
+3. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_add_basic.dump
+4. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_intrinsics.elf
+5. /home/vedant/Desktop/Summer_Project/cva6/tests/vector_tests/vector_intrinsics.dump
+
+Key Changes Made:
+-----------------
+- Added ARA vector unit integration wrapper and decoder
+- Created vector test programs and compilation infrastructure
+- Modified CVA6 configuration to enable vector extensions
+- Added comprehensive documentation and integration scripts
+- Set up build system for ARA integration

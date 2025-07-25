@@ -1,0 +1,323 @@
+model.py
+
+python3 model.py ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+
+Running single configuration (issue=2, commit=2):
+============================================================
+cycle number             = 2338
+Coremark/MHz             = 427.71599657827204
+instruction number       = 2021
+EventKind.issue/instr    = 100.00%
+EventKind.done/instr     = 100.00%
+EventKind.commit/instr   = 100.00%
+EventKind.RAW/instr      = 106.83%
+EventKind.BMISS/instr    = 0.69%
+EventKind.BHIT/instr     = 7.97%
+EventKind.STRUCT/instr   = 24.39%
+
+============================================================
+Generating Issue/Commit Performance Analysis...
+Testing issue/commit combinations from 1 to 3...
+[1/9] Testing issue=1, commit=1... Score: 363.11
+[2/9] Testing issue=1, commit=2... Score: 363.24
+[3/9] Testing issue=1, commit=3... Score: 363.24
+[4/9] Testing issue=2, commit=1... Score: 419.64
+[5/9] Testing issue=2, commit=2... Score: 427.72
+[6/9] Testing issue=2, commit=3... Score: 427.90
+[7/9] Testing issue=3, commit=1... Score: 420.34
+[8/9] Testing issue=3, commit=2... Score: 429.18
+[9/9] Testing issue=3, commit=3... Score: 429.37
+
+Final scores matrix:
+[[0, 0, 0, 0], [0, 363.10820624546113, 363.24010170722846, 363.24010170722846], [0, 419.639110365086, 427.71599657827204, 427.89901583226356], [0, 420.3446826397646, 429.18454935622316, 429.36882782310005]]
+
+Issue/Commit Performance Matrix:
+==================================================
+Issue\Commit         0.0             1.0             2.0             3.0
+        0           0.00            0.00            0.00            0.00
+        1           0.00          363.11          363.24          363.24
+        2           0.00          419.64          427.72          427.90
+        3           0.00          420.34          429.18          429.37
+        
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+rvfi analyzer.py
+  
+python3 rvfi_analyzer.py ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+
+
+Parsing RVFI trace: ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+
+============================================================
+RVFI TRACE ANALYSIS SUMMARY
+============================================================
+Total Instructions Executed: 2021
+Compressed Instructions: 313
+Register Writes: 1387
+Memory Reads: 816
+Memory Writes: 338
+Branches: 164
+Jumps: 8
+CSR Instructions: 6
+
+Compression Ratio: 15.5%
+
+============================================================
+INSTRUCTION TYPE DISTRIBUTION
+============================================================
+ld                646 ( 32.0%)
+addi              173 (  8.6%)
+lw                170 (  8.4%)
+sd                169 (  8.4%)
+c.add             163 (  8.1%)
+bltu              158 (  7.8%)
+andi              157 (  7.8%)
+sb                156 (  7.7%)
+c.li               41 (  2.0%)
+fmv.w.x            32 (  1.6%)
+c.mv               21 (  1.0%)
+sw                 13 (  0.6%)
+c.sdsp             12 (  0.6%)
+auipc              11 (  0.5%)
+c.addi16sp          8 (  0.4%)
+
+============================================================
+EXECUTION FLOW (First 20 instructions)
+============================================================
+PC                 Encoding   Instruction               Reg Write
+--------------------------------------------------------------------------------
+0x0000000000010000 0x00100413 li      s0, 1             
+0x0000000000010004 0x01f41413 slli    s0, s0, 31        
+0x0000000000010008 0xf1402573 csrrs   a0, mhartid, zero x10 = 0x0
+0x000000000001000c 0x00000597 auipc   a1, 0x0           x11 = 0x1000c
+0x0000000000010010 0x07458593 addi    a1, a1, 116       x11 = 0x10080
+0x0000000000010014 0x00040067 jr      s0                
+0x0000000080000000 0x00004081 c.li    ra, 0             
+0x0000000080000002 0x00004101 c.li    sp, 0             
+0x0000000080000004 0x00004181 c.li    gp, 0             
+0x0000000080000006 0x00004201 c.li    tp, 0             
+0x0000000080000008 0x00004281 c.li    t0, 0             
+0x000000008000000a 0x00004301 c.li    t1, 0             
+0x000000008000000c 0x00004381 c.li    t2, 0             
+0x000000008000000e 0x00004401 c.li    s0, 0             
+0x0000000080000010 0x00004481 c.li    s1, 0             
+0x0000000080000012 0x00004501 c.li    a0, 0             x10 = 0x0
+0x0000000080000014 0x00004581 c.li    a1, 0             x11 = 0x0
+0x0000000080000016 0x00004601 c.li    a2, 0             x12 = 0x0
+0x0000000080000018 0x00004681 c.li    a3, 0             x13 = 0x0
+0x000000008000001a 0x00004701 c.li    a4, 0             x14 = 0x0
+
+============================================================
+PROGRAM EXECUTION PHASES
+============================================================
+Boot/Setup Phase: 6 instructions
+Main Program Phase: 2015 instructions
+Boot sequence PC range: 0x10000 - 0x10014
+Main program PC range: 0x80000000 - 0x80003528
+
+============================================================
+WHAT IS RVFI?
+============================================================
+RVFI (RISC-V Formal Interface) provides detailed execution information:
+• Every instruction executed with PC and encoding
+• Register reads/writes with values
+• Memory accesses with addresses and data
+• Exception and interrupt information
+• Performance counter updates
+• Control flow changes (branches, jumps)
+
+This trace helps in:
+• Performance analysis and optimization
+• Hardware verification
+• Debug and profiling
+• Microarchitecture exploration
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+simple rvfi analyzer.py
+ 
+python3 rvfi_analyzer.py ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+
+Analyzing RVFI trace: ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+Total lines in file: 4042
+
+============================================================
+RVFI TRACE ANALYSIS
+============================================================
+Instructions found: 2021
+Register writes found: 61
+
+First 10 instructions:
+--------------------------------------------------------------------------------
+ 1. PC: 0x0000000000010000 | (0x00100413) | li s0, 1
+ 2. PC: 0x0000000000010004 | (0x01f41413) | slli s0, s0, 31
+ 3. PC: 0x0000000000010008 | (0xf1402573) | csrrs a0, mhartid, zero
+ 4. PC: 0x000000000001000c | (0x00000597) | auipc a1, 0x0
+ 5. PC: 0x0000000000010010 | (0x07458593) | addi a1, a1, 116
+ 6. PC: 0x0000000000010014 | (0x00040067) | jr s0
+ 7. PC: 0x0000000080000000 | (0x00004081) | c.li ra, 0
+ 8. PC: 0x0000000080000002 | (0x00004101) | c.li sp, 0
+ 9. PC: 0x0000000080000004 | (0x00004181) | c.li gp, 0
+10. PC: 0x0000000080000006 | (0x00004201) | c.li tp, 0
+
+First 10 register writes:
+--------------------------------------------------------------------------------
+ 1. Cycle 3: x8 = 0x0000000000000001
+ 2. Cycle 3: x8 = 0x0000000080000000
+ 3. Cycle 3: x1 = 0x0000000000000000
+ 4. Cycle 3: x2 = 0x0000000000000000
+ 5. Cycle 3: x3 = 0x0000000000000000
+ 6. Cycle 3: x4 = 0x0000000000000000
+ 7. Cycle 3: x5 = 0x0000000000000000
+ 8. Cycle 3: x6 = 0x0000000000000000
+ 9. Cycle 3: x7 = 0x0000000000000000
+10. Cycle 3: x8 = 0x0000000000000000
+
+Compressed instructions: 298 (14.7%)
+
+Top 10 instruction types:
+----------------------------------------
+ld                646 ( 32.0%)
+addi              173 (  8.6%)
+lw                170 (  8.4%)
+sd                169 (  8.4%)
+c.add             163 (  8.1%)
+bltu              158 (  7.8%)
+andi              157 (  7.8%)
+sb                156 (  7.7%)
+c.li               41 (  2.0%)
+fmv.w.x            32 (  1.6%)
+
+============================================================
+WHAT IS RVFI?
+============================================================
+RVFI (RISC-V Formal Interface) captures detailed execution information:
+• Every instruction executed with PC and encoding
+• Register reads/writes with values
+• Memory accesses with addresses and data
+• Exception and interrupt information
+
+This trace helps in:
+• Performance analysis and optimization
+• Hardware verification and debugging
+• Microarchitecture exploration
+• Instruction-level profiling
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+perf analysis.py
+  
+Running configuration: issue=2, commit=2
+============================================================
+cycle number             = 2338
+Coremark/MHz             = 427.71599657827204
+instruction number       = 2021
+EventKind.issue/instr    = 100.00%
+EventKind.done/instr     = 100.00%
+EventKind.commit/instr   = 100.00%
+EventKind.RAW/instr      = 106.83%
+EventKind.BMISS/instr    = 0.69%
+EventKind.BHIT/instr     = 7.97%
+EventKind.STRUCT/instr   = 24.39%
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
+demo issue commit.py
+
+CVA6 Performance Model - Issue/Commit Width Analysis Demo
+Input file: ../verif/sim/out_2025-07-08/veri-testharness_sim/multiply.cv64a6_imafdc_sv39.log
+============================================================
+DEMO: Issue/Commit Width Analysis
+============================================================
+Testing combinations from 1x1 to 3x3
+Format: Issue=X, Commit=Y
+
+Testing Issue=1, Commit=1... Performance: 363.11
+Testing Issue=1, Commit=2... Performance: 363.24
+Testing Issue=1, Commit=3... Performance: 363.24
+Testing Issue=2, Commit=1... Performance: 419.64
+Testing Issue=2, Commit=2... Performance: 427.72
+Testing Issue=2, Commit=3... Performance: 427.90
+Testing Issue=3, Commit=1... Performance: 420.34
+Testing Issue=3, Commit=2... Performance: 429.18
+Testing Issue=3, Commit=3... Performance: 429.37
+
+============================================================
+RESULTS SUMMARY
+============================================================
+Config       Cycles   Instrs   IPC    Perf    
+--------------------------------------------------
+1x1          2754     2021     0.73   363.11  
+1x2          2753     2021     0.73   363.24  
+1x3          2753     2021     0.73   363.24  
+2x1          2383     2021     0.85   419.64  
+2x2          2338     2021     0.86   427.72  
+2x3          2337     2021     0.86   427.90  
+3x1          2379     2021     0.85   420.34  
+3x2          2330     2021     0.87   429.18  
+3x3          2329     2021     0.87   429.37  
+
+Best Configuration: Issue=3, Commit=3
+Best Performance: 429.37
+
+============================================================
+IMPROVEMENT ANALYSIS
+============================================================
+Baseline (1x1): 363.11
+
+Issue=1, Commit=2: +0.0% improvement
+Issue=1, Commit=3: +0.0% improvement
+Issue=2, Commit=1: +15.6% improvement
+Issue=2, Commit=2: +17.8% improvement
+Issue=2, Commit=3: +17.8% improvement
+Issue=3, Commit=1: +15.8% improvement
+Issue=3, Commit=2: +18.2% improvement
+Issue=3, Commit=3: +18.2% improvement
+
+============================================================
+DEMO: Hazard Analysis
+============================================================
+
+Configuration: Issue=1, Commit=1
+----------------------------------------
+  RAW     :  652 ( 32.3%)
+  WAW     :    0 (  0.0%)
+  STRUCT  :    0 (  0.0%)
+  BMISS   :   14 (  0.7%)
+  BHIT    :  161 (  8.0%)
+
+Configuration: Issue=2, Commit=2
+----------------------------------------
+  RAW     : 2159 (106.8%)
+  WAW     :    0 (  0.0%)
+  STRUCT  :  493 ( 24.4%)
+  BMISS   :   14 (  0.7%)
+  BHIT    :  161 (  8.0%)
+
+Configuration: Issue=3, Commit=3
+----------------------------------------
+  RAW     : 4171 (206.4%)
+  WAW     :    0 (  0.0%)
+  STRUCT  : 1058 ( 52.4%)
+  BMISS   :   14 (  0.7%)
+  BHIT    :  161 (  8.0%)
+
+============================================================
+DEMO COMPLETE
+============================================================
+This demo shows how the issue_commit_graph function works.
+You can modify the max_width parameter to test more configurations.
+The full model.py includes 3D visualization when matplotlib is available.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FINAL NOTE:
+
+For any log file,
+1)  
+2)  Need Issue/Commit Performance Analysis Matix from model.py file

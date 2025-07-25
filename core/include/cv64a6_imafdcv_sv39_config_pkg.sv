@@ -21,7 +21,7 @@ package cva6_config_pkg;
   localparam CVA6ConfigF8En = 0;
   localparam CVA6ConfigFVecEn = 0;
 
-  localparam CVA6ConfigCvxifEn = 0;
+  localparam CVA6ConfigCvxifEn = 1;  // Enable accelerator interface for ARA
   localparam CVA6ConfigCExtEn = 1;
   localparam CVA6ConfigZcbExtEn = 0;
   localparam CVA6ConfigZcmpExtEn = 0;
@@ -78,7 +78,7 @@ package cva6_config_pkg;
 
   localparam config_pkg::cva6_user_cfg_t cva6_cfg = '{
       XLEN: unsigned'(CVA6ConfigXlen),
-      VLEN: unsigned'(64),
+      VLEN: unsigned'(256),  // Updated for ARA integration (was 64)
       FpgaEn: bit'(0),  // for Xilinx and Altera
       FpgaAlteraEn: bit'(0),  // for Altera (only)
       TechnoCut: bit'(0),
@@ -106,7 +106,7 @@ package cva6_config_pkg;
       RVZCMT: bit'(0),
       XFVec: bit'(CVA6ConfigFVecEn),
       CvxifEn: bit'(CVA6ConfigCvxifEn),
-      CoproType: config_pkg::COPRO_NONE,
+      CoproType: config_pkg::COPRO_CVXIF,  // Updated for ARA integration
       RVZiCond: bit'(CVA6ConfigRVZiCond),
       RVZicntr: bit'(1),
       RVZihpm: bit'(1),

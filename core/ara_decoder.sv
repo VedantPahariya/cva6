@@ -2,10 +2,8 @@
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
 
-// Author: Nils Wistoff <nwistoff@iis.ee.ethz.ch>
-
-// Module stub for the cva6_accel_first_pass_decoder. Replace this with your accelerator's
-// first pass decoder.
+// ARA Vector Accelerator First Pass Decoder for CVA6
+// This decoder identifies RISC-V vector instructions and forwards them to ARA
 
 module cva6_accel_first_pass_decoder
   import ariane_pkg::*;

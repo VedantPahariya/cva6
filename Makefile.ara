@@ -1,0 +1,85 @@
+# CVA6 + ARA Integration Makefile
+# This Makefile builds CVA6 with ARA vector processor integration
+
+# Repository paths
+export CVA6_REPO_DIR := $(CURDIR)
+export ARA_REPO_DIR  := $(CURDIR)/../ara
+
+# Check if ARA repository exists
+ifeq (,$(wildcard $(ARA_REPO_DIR)))
+$(warning ARA repository not found at $(ARA_REPO_DIR). Some targets may not work.)
+endif
+
+# Include the original CVA6 Makefile
+include Makefile
+
+# ARA-specific variables
+ARA_VLEN      ?= 256
+ARA_NR_LANES  ?= 4
+ARA_FPU_EN    ?= 1
+CVA6_ARA_CONFIG ?= cv64a6_imafdcv_sv39_config_pkg
+
+# Override configuration for vector support
+config_pkg ?= $(CVA6_ARA_CONFIG)
+
+# ARA source files (to be populated when ARA is integrated)
+ARA_SOURCES = \
+    $(ARA_ROOT)/hardware/src/ara.sv \
+    $(ARA_ROOT)/hardware/src/ara_system.sv \
+    # Add more ARA source files as needed
+
+# CVA6+ARA integration files
+CVA6_ARA_SOURCES = \
+    $(CVA6_CORE_ROOT)/ara_decoder.sv \
+    $(CVA6_CORE_ROOT)/cva6_ara_wrapper.sv
+
+# Add ARA sources to the build when ARA is available
+ifdef ARA_INTEGRATED
+ARIANE_PKG_SRC += $(ARA_SOURCES)
+endif
+
+# Add integration sources
+ARIANE_PKG_SRC += $(CVA6_ARA_SOURCES)
+
+# ARA-specific compile flags
+ifdef ARA_INTEGRATED
+VLOG_FLAGS += +define+ARA_INTEGRATED
+VLOG_FLAGS += +incdir+$(ARA_ROOT)/hardware/include
+endif
+
+# Vector-specific flags
+VLOG_FLAGS += +define+VECTOR_ENABLED
+VLOG_FLAGS += +define+CVA6_VECTOR_CONFIG
+
+# Targets
+.PHONY: build-ara-integrated clean-ara
+
+# Build CVA6 with ARA integration
+build-ara-integrated: check-ara
+	$(MAKE) ARA_INTEGRATED=1 config_pkg=$(CVA6_ARA_CONFIG) verilate
+
+# Check if ARA is available
+check-ara:
+	@if [ ! -d "$(ARA_ROOT)" ]; then \
+		echo "Error: ARA not found at $(ARA_ROOT)"; \
+		echo "Please clone ARA repository:"; \
+		echo "  cd .. && git clone https://github.com/pulp-platform/ara.git"; \
+		exit 1; \
+	fi
+	@echo "ARA found at $(ARA_ROOT)"
+
+# Clean ARA-related files
+clean-ara:
+	$(MAKE) clean
+	rm -rf ara_build/
+
+# Help target
+help-ara:
+	@echo "CVA6+ARA Integration Targets:"
+	@echo "  build-ara-integrated  - Build CVA6 with ARA vector unit"
+	@echo "  check-ara            - Check if ARA is available"
+	@echo "  clean-ara            - Clean all ARA-related build files"
+	@echo ""
+	@echo "Variables:"
+	@echo "  ARA_ROOT             - Path to ARA repository (default: ../ara)"
+	@echo "  CVA6_ARA_CONFIG      - CVA6 configuration package for ARA integration"
